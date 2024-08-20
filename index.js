@@ -1,5 +1,5 @@
 const express = require('express');
-const { DdcClient, File, TESTNET } = require('@cere-ddc-sdk/ddc-client');
+const { FileStorage, File, TESTNET } = require('@cere-ddc-sdk/file-storage');
 const { Readable } = require('stream');
 require('dotenv').config();
 
@@ -7,15 +7,14 @@ const app = express();
 app.use(express.json());
 
 const user = process.env.DDC_WALLET_MNEMONIC;
-const bucketId = BigInt(process.env.DDC_BUCKET); 
+const bucketId = BigInt(process.env.DDC_BUCKET);
 
-let client;
+let fileStorage;
 
-// Initialize CERE DDC Client
-// it connects using the wallet mnemonic and Testnet configuration.
+// Initialize CERE DDC FileStorage Client
 (async () => {
-    client = await DdcClient.create(user, TESTNET);
-    console.log('CERE DDC Client connected');
+    fileStorage = await FileStorage.create(user, TESTNET);
+    console.log('CERE FileStorage Client connected');
 })();
 
 app.post('/dapp/store', async (req, res) => {
@@ -27,13 +26,14 @@ app.post('/dapp/store', async (req, res) => {
 
         const ddcFile = new File(fileStream, fileStats);
 
-        const fileUri = await client.store(bucketId, ddcFile);
-        console.log('File stored into bucket', bucketId, 'with CID', fileUri.cid);
+        // Store the file into DDC with SDK
+        const fileCid = await fileStorage.store(bucketId, ddcFile);
+        console.log('File stored into bucket', bucketId, 'with CID', fileCid);
 
         // Respond with the CERE storage URL
         res.json({
             message: 'File stored successfully',
-            fileUrl: `https://storage.testnet.cere.network/${bucketId}/${fileUri.cid}`
+            fileUrl: `https://storage.testnet.cere.network/${bucketId}/${fileCid}`
         });
     } catch (error) {
         console.error('Error storing file:', error);
@@ -46,8 +46,8 @@ app.listen(process.env.PORT || 3000, () => {
 });
 
 process.on('SIGINT', async () => {
-    if (client) {
-        await client.disconnect();
+    if (fileStorage) {
+        await fileStorage.disconnect();
     }
     process.exit();
 });
