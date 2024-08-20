@@ -1,17 +1,18 @@
 const express = require('express');
 const { DdcClient, File, TESTNET } = require('@cere-ddc-sdk/ddc-client');
 const { Readable } = require('stream');
-require('dotenv').config(); // Load environment variables
+require('dotenv').config();
 
 const app = express();
 app.use(express.json());
 
-const user = process.env.DDC_WALLET_MNEMONIC; // Access wallet mnemonic from environment variable
-const bucketId = BigInt(process.env.DDC_BUCKET); // Access bucket ID from environment variable
+const user = process.env.DDC_WALLET_MNEMONIC;
+const bucketId = BigInt(process.env.DDC_BUCKET); 
 
 let client;
 
 // Initialize CERE DDC Client
+// it connects using the wallet mnemonic and Testnet configuration.
 (async () => {
     client = await DdcClient.create(user, TESTNET);
     console.log('CERE DDC Client connected');
