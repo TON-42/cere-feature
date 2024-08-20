@@ -1,19 +1,24 @@
 const express = require('express');
-const { FileStorage, File, TESTNET } = require('@cere-ddc-sdk/file-storage');
+const { FileStorage, File, JsonSigner, TESTNET } = require('@cere-ddc-sdk/file-storage');
 const { Readable } = require('stream');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
 app.use(express.json());
 
-const user = process.env.DDC_WALLET_MNEMONIC;
 const bucketId = BigInt(process.env.DDC_BUCKET);
+
+// Load the Cere wallet backup JSON file
+const WalletSeedPhrase = require('./6RVH5JcwnHaeehPANp3XLdW6qtyNPwnvPW2LCbApTbidNtch.json');
+const passphrase = process.env.CERE_WALLET_PASSPHRASE; // The passphrase to decrypt the wallet
 
 let fileStorage;
 
-// Initialize CERE DDC FileStorage Client
+// Initialize CERE DDC FileStorage Client using the JsonSigner
 (async () => {
-    fileStorage = await FileStorage.create(user, TESTNET);
+    const signer = new JsonSigner(WalletSeedPhrase, { passphrase });
+    fileStorage = await FileStorage.create(signer, TESTNET);
     console.log('CERE FileStorage Client connected');
 })();
 
@@ -24,7 +29,7 @@ app.post('/dapp/store', async (req, res) => {
         const fileStats = { size: fileBuffer.length };
         const fileStream = Readable.from(fileBuffer);
 
-        const ddcFile = new File(fileStream, fileStats);
+        const ddcFile = new File(fileStream, fileStatadd .s);
 
         // Store the file into DDC with SDK
         const fileCid = await fileStorage.store(bucketId, ddcFile);
