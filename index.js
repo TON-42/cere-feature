@@ -10,7 +10,7 @@ app.use(express.json());
 const bucketId = BigInt(process.env.DDC_BUCKET); // Ensure DDC_BUCKET is defined
 console.log('DDC_BUCKET:', process.env.DDC_BUCKET);
 
-const WalletSeedPhrase = require('./6RVH5JcwnHaeehPANp3XLdW6qtyNPwnvPW2LCbApTbidNtch.json');
+const cereWalletBackup = require('./6RVH5JcwnHaeehPANp3XLdW6qtyNPwnvPW2LCbApTbidNtch.json');
 const passphrase = process.env.CERE_WALLET_PASSPHRASE;
 
 let fileStorage, ddcClient;
@@ -18,13 +18,13 @@ let fileStorage, ddcClient;
 // Initialize FileStorage and DdcClient Asynchronously
 (async () => {
     try {
-        const signer = new JsonSigner(WalletSeedPhrase, { passphrase });
+        const signer = new JsonSigner(cereWalletBackup, { passphrase });
         console.log('Signer created');
     
         ddcClient = await DdcClient.create(signer, MAINNET);
         console.log('DdcClient created');
     
-        fileStorage = await FileStorage.create(signer, TESTNET);
+        fileStorage = await FileStorage.create(signer, MAINNET);
         console.log('FileStorage client created');
     } catch (error) {
         console.error('Error initializing clients:', error);
@@ -53,9 +53,27 @@ app.post('/dappstorage', async (req, res) => {
             fileBuffer = Buffer.from(currentDate, 'utf-8');
             console.log('Uploading current date:', currentDate);
         } else {
-            // Use the file content provided in the API call
-            fileBuffer = Buffer.from(req.body.file, 'base64');
+            // Check if req.body.file is present and valid
+            if (!req.body.file) {
+                console.error('No file content provided in the request');
+                return res.status(400).send('No file content provided');
+            }
+
+            // Decode Base64 file content if needed
+            try {
+                fileBuffer = Buffer.from(req.body.file, 'base64');
+            } catch (error) {
+                console.error('Error decoding Base64 content:', error);
+                return res.status(400).send('Invalid Base64 file content');
+            }
             console.log('Uploading received file content');
+            console.log('File content:', fileBuffer.toString('utf-8'));
+        }
+
+        // Ensure fileBuffer is valid
+        if (!fileBuffer || fileBuffer.length === 0) {
+            console.error('File buffer is empty or invalid');
+            return res.status(400).send('File buffer is empty or invalid');
         }
 
         const fileStats = { size: fileBuffer.length };
