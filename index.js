@@ -14,6 +14,10 @@ const passphrase = process.env.CERE_WALLET_PASSPHRASE; // The passphrase to decr
 
 let fileStorage;
 
+app.get('/', (req, res) => {
+    res.send('Hello, World!');
+});
+
 // Initialize CERE DDC FileStorage Client using the JsonSigner
 (async () => {
     const signer = new JsonSigner(WalletSeedPhrase, { passphrase });
