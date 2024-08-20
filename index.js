@@ -14,18 +14,31 @@ const passphrase = process.env.CERE_WALLET_PASSPHRASE; // The passphrase to decr
 
 let fileStorage;
 
+// initialize FileStorage Async
+(async () => {
+    try {
+        const signer = new JsonSigner(WalletSeedPhrase, { passphrase });
+        console.log('Signer created');
+        fileStorage = await FileStorage.create(signer, TESTNET);
+        console.log('FileStorage client created');
+    } catch (error) {
+        console.error('Error initializing FileStorage:', error);
+        process.exit(1); // Exit if initialization fails
+    }
+})();
+
+// Start the server only after initialization is complete
+app.listen(process.env.PORT || 3000, () => {
+    if (fileStorage) {
+        console.log(`Server is running on port ${process.env.PORT || 3000}`);
+    }
+});
+
 app.get('/', (req, res) => {
     res.send('Hello, World!');
 });
 
-// Initialize CERE DDC FileStorage Client using the JsonSigner
-(async () => {
-    const signer = new JsonSigner(WalletSeedPhrase, { passphrase });
-    fileStorage = await FileStorage.create(signer, TESTNET);
-    console.log('CERE FileStorage Client connected');
-})();
-
-app.post('/dapp/store', async (req, res) => {
+app.post('/dappstorage', async (req, res) => {
     try {
         let fileBuffer;
 
@@ -60,10 +73,7 @@ app.post('/dapp/store', async (req, res) => {
     }
 });
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log(`Server is running on port ${process.env.PORT || 3000}`);
-});
-
+// Clean up on exit
 process.on('SIGINT', async () => {
     if (fileStorage) {
         await fileStorage.disconnect();
