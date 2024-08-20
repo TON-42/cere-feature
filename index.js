@@ -10,7 +10,7 @@ app.use(express.json());
 const bucketId = BigInt(process.env.DDC_BUCKET); // Ensure DDC_BUCKET is defined
 console.log('DDC_BUCKET:', process.env.DDC_BUCKET);
 
-const cereWalletBackup = require('./6RVH5JcwnHaeehPANp3XLdW6qtyNPwnvPW2LCbApTbidNtch.json');
+const cereWalletBackup = require('./6SGbXFmXVkBx4LsoobNUHZXbCcq8c2UUdVR4qFJKB88zhzh1.json');
 const passphrase = process.env.CERE_WALLET_PASSPHRASE;
 
 let fileStorage, ddcClient;
@@ -83,7 +83,7 @@ app.post('/dappstorage', async (req, res) => {
 
         // Store the file into DDC with SDK
         const fileCid = await fileStorage.store(bucketId, ddcFile);
-        console.log('File stored into bucket', bucketId, 'with CID', fileCid);
+        // console.log('File stored into bucket', bucketId, 'with CID', fileCid);
 
         // Respond with the CERE storage URL
         res.json({
