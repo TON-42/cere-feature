@@ -1,7 +1,6 @@
 const express = require('express');
 const { FileStorage, File, JsonSigner, TESTNET } = require('@cere-ddc-sdk/file-storage');
 const { Readable } = require('stream');
-const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -24,12 +23,23 @@ let fileStorage;
 
 app.post('/dapp/store', async (req, res) => {
     try {
-        // WARNING: file is sent as a base64 string
-        const fileBuffer = Buffer.from(req.body.file, 'base64');
+        let fileBuffer;
+
+        if (process.env.INDEV === '1') {
+            // Generate file content with the current date
+            const currentDate = new Date().toISOString();
+            fileBuffer = Buffer.from(currentDate, 'utf-8');
+            console.log('Uploading current date:', currentDate);
+        } else {
+            // Use the file content provided in the API call
+            fileBuffer = Buffer.from(req.body.file, 'base64');
+            console.log('Uploading received file content');
+        }
+
         const fileStats = { size: fileBuffer.length };
         const fileStream = Readable.from(fileBuffer);
 
-        const ddcFile = new File(fileStream, fileStatadd .s);
+        const ddcFile = new File(fileStream, fileStats);
 
         // Store the file into DDC with SDK
         const fileCid = await fileStorage.store(bucketId, ddcFile);
