@@ -1,28 +1,33 @@
+require('dotenv').config(); // Ensure dotenv is loaded first
 const express = require('express');
 const { FileStorage, File, JsonSigner, TESTNET } = require('@cere-ddc-sdk/file-storage');
-const { Readable } = require('stream');
-require('dotenv').config();
+const { DdcClient, MAINNET } = require('@cere-ddc-sdk/ddc-client');
+const { Readable } = require('stream'); // Ensure Readable is imported
 
 const app = express();
 app.use(express.json());
 
-const bucketId = BigInt(process.env.DDC_BUCKET);
+const bucketId = BigInt(process.env.DDC_BUCKET); // Ensure DDC_BUCKET is defined
+console.log('DDC_BUCKET:', process.env.DDC_BUCKET);
 
-// Load the Cere wallet backup JSON file
 const WalletSeedPhrase = require('./6RVH5JcwnHaeehPANp3XLdW6qtyNPwnvPW2LCbApTbidNtch.json');
-const passphrase = process.env.CERE_WALLET_PASSPHRASE; // The passphrase to decrypt the wallet
+const passphrase = process.env.CERE_WALLET_PASSPHRASE;
 
-let fileStorage;
+let fileStorage, ddcClient;
 
-// initialize FileStorage Async
+// Initialize FileStorage and DdcClient Asynchronously
 (async () => {
     try {
         const signer = new JsonSigner(WalletSeedPhrase, { passphrase });
         console.log('Signer created');
+    
+        ddcClient = await DdcClient.create(signer, MAINNET);
+        console.log('DdcClient created');
+    
         fileStorage = await FileStorage.create(signer, TESTNET);
         console.log('FileStorage client created');
     } catch (error) {
-        console.error('Error initializing FileStorage:', error);
+        console.error('Error initializing clients:', error);
         process.exit(1); // Exit if initialization fails
     }
 })();

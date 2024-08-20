@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@cere-ddc-sdk/ddc-client": "^2.12.4",
     "@cere-ddc-sdk/file-storage": "^2.12.4",
     "axios": "^1.7.4",
     "dotenv": "^16.4.5",
