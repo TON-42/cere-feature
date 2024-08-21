@@ -76,8 +76,11 @@ app.post('/dappstorage', async (req, res) => {
             return res.status(400).send('File buffer is empty or invalid');
         }
 
+        
         const fileStats = { size: fileBuffer.length };
         const fileStream = Readable.from(fileBuffer);
+        // console.log('File stats:', fileStats);
+        // console.log('File stream:', fileStream);
 
         const ddcFile = new File(fileStream, fileStats);
 
@@ -88,7 +91,7 @@ app.post('/dappstorage', async (req, res) => {
         // Respond with the CERE storage URL
         res.json({
             message: 'File stored successfully',
-            fileUrl: `https://storage.testnet.cere.network/${bucketId}/${fileCid}`
+            fileUrl: `https://storage.mainnet.cere.network/${bucketId}/${fileCid}`
         });
     } catch (error) {
         console.error('Error storing file:', error);

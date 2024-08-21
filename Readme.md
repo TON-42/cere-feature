@@ -1,3 +1,16 @@
+Hackathon judges and organizers FAQ:
+
+Why so little code, why only having a feature open source ?
+The ChatPay team is really dedicated in working on its product. We want to work on it and develop it, we believe it is a project for the common good, but we don't want to give it away ;)
+
+At what stage is ChatPay ?
+Our product is still an "advanced POC" with 1300+ users (organic). While we develop the product itself we seek for strategic partnerships and investment
+
+How can ChatPay and The Blockspace, Web0 organization and key-members collaborate
+Key-partnership (in AI or data acquisition as instance) and establishing connection with potential investors (finders fee) are of mutual interest
+
+- ***
+
 Check Readme for env var use:
 https://github.com/cere-io/integration-telegram-app-bot/
 
